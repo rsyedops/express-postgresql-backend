@@ -1,4 +1,6 @@
 import { db } from "#db/index.js";
+import { firstOrUndefined } from "#utils/firstOrUndefined.js";
+import { eq } from "drizzle-orm";
 
 import { NewUser, users } from "./users.model.js";
 
@@ -10,4 +12,17 @@ export const insertUser = async (user: NewUser) => {
   });
 
   return newUser;
+};
+
+export const findUserByEmail = async (email: string) => {
+  const result = await db
+    .select({
+      email: users.email,
+      hashedPassword: users.hashedPassword,
+      id: users.id,
+      username: users.username,
+    })
+    .from(users)
+    .where(eq(users.email, email));
+  return firstOrUndefined(result);
 };

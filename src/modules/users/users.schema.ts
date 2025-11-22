@@ -1,22 +1,30 @@
 import z from "zod";
 
+const userCredentials = z.object(
+  {
+    email: z.email("valid email is required"),
+    password: z.string("password is required"),
+  },
+  "user is required",
+);
+
+const credentialsWithUsername = userCredentials.extend({
+  username: z.string("username is required"),
+});
+
+export const loginUserSchema = z.object({
+  user: userCredentials,
+});
+export type LoginUserParams = z.infer<typeof loginUserSchema>;
+
 export const registerUserSchema = z.object({
-  user: z.object(
-    {
-      email: z.email("valid email is required"),
-      password: z.string("password is required"),
-      username: z.string("username is required"),
-    },
-    "user is required",
-  ),
+  user: credentialsWithUsername,
 });
 export type registerUserParams = z.infer<typeof registerUserSchema>;
 
-export const registerUserResponse = z.object({
-  user: z.object({
-    email: z.email(),
+// strip extra unwanted keys (e.g. hashed password)
+export const authenticateUserResponse = z.object({
+  user: credentialsWithUsername.omit({ password: true }).extend({
     token: z.string(),
-    username: z.string(),
   }),
 });
-export type RegisterUserResponse = z.infer<typeof registerUserResponse>;

@@ -1,18 +1,20 @@
 import { RequestHandler } from "express";
 
-import { RegisterUserResponse, registerUserSchema } from "./users.schema.js";
-import { createUser } from "./users.service.js";
+import { authenticateUserResponse, loginUserSchema, registerUserSchema } from "./users.schema.js";
+import { createUser, loginUser } from "./users.service.js";
 
 export const createUserHandler: RequestHandler = async (req, res) => {
   const body = registerUserSchema.parse(req.body);
 
-  const newUser = await createUser(body.user);
+  const user = await createUser(body.user);
 
-  return res.status(201).json({
-    user: {
-      email: newUser.email,
-      token: newUser.token,
-      username: newUser.username,
-    },
-  } satisfies RegisterUserResponse);
+  return res.status(201).json(authenticateUserResponse.parse({ user }));
+};
+
+export const loginUserHandler: RequestHandler = async (req, res) => {
+  const body = loginUserSchema.parse(req.body);
+
+  const user = await loginUser(body.user);
+
+  return res.json(authenticateUserResponse.parse({ user }));
 };
