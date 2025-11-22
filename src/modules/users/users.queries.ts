@@ -5,6 +5,7 @@ import { NewUser, users } from "./users.model.js";
 export const insertUser = async (user: NewUser) => {
   const [newUser] = await db.insert(users).values(user).returning({
     email: users.email,
+    id: users.id,
     username: users.username,
   });
 

@@ -4,11 +4,15 @@ import { RegisterUserResponse, registerUserSchema } from "./users.schema.js";
 import { createUser } from "./users.service.js";
 
 export const createUserHandler: RequestHandler = async (req, res) => {
-  const user = registerUserSchema.parse(req.body);
+  const body = registerUserSchema.parse(req.body);
 
-  const newUser = await createUser(user);
+  const newUser = await createUser(body.user);
 
   return res.status(201).json({
-    user: newUser,
+    user: {
+      email: newUser.email,
+      token: newUser.token,
+      username: newUser.username,
+    },
   } satisfies RegisterUserResponse);
 };

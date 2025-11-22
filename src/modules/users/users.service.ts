@@ -3,21 +3,24 @@ import { makeJWT } from "#lib/jwt/makeJWT.js";
 import { isUniqueConstraintError } from "#shared/db-errors.js";
 import { ConflictRequestError } from "#shared/errors.js";
 
-import { User } from "./users.model.js";
 import { insertUser } from "./users.queries.js";
 import { registerUserParams } from "./users.schema.js";
 
-export const createUser = async ({ user: { email, password, username } }: registerUserParams) => {
+export const createUser = async ({ email, password, username }: registerUserParams["user"]) => {
   const hashedPassword = await hashPassword(password);
 
-  let newUser: User;
-
   try {
-    newUser = await insertUser({
+    const newUser = await insertUser({
       email,
       hashedPassword,
       username,
     });
+    const token = makeJWT(newUser.id);
+
+    return {
+      ...newUser,
+      token,
+    };
   } catch (err) {
     if (isUniqueConstraintError(err)) {
       throw new ConflictRequestError(
@@ -26,11 +29,4 @@ export const createUser = async ({ user: { email, password, username } }: regist
     }
     throw err;
   }
-
-  const token = makeJWT(newUser);
-
-  return {
-    ...newUser,
-    token,
-  };
 };
