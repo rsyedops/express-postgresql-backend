@@ -3,8 +3,8 @@
   "version": "1.0.0",
   "description": "Exemplary Medium.com clone backend API implementation with Typescript + Express + PostgresQL + Drizzle",
   "scripts": {
-    "dev": "tsx --watch --env-file .env src/index.ts",
-    "start": "node --env-file .env dist/index.js",
+    "dev": "tsx --watch --env-file .env src/server.ts",
+    "start": "node --env-file .env dist/server.js",
     "build": "tsc -p tsconfig.build.json",
     "type-check": "tsc --noEmit",
     "lint": "eslint .",
@@ -15,7 +15,9 @@
     "test:run": "vitest --run",
     "test:ui": "vitest --ui",
     "coverage": "vitest run --coverage",
-    "prepare": "husky"
+    "prepare": "husky",
+    "generate": "tsx node_modules/drizzle-kit/bin.cjs generate",
+    "migrate": "tsx node_modules/drizzle-kit/bin.cjs migrate"
   },
   "repository": {
     "type": "git",
@@ -42,15 +44,25 @@
     ]
   },
   "dependencies": {
-    "express": "^5.1.0"
+    "argon2": "^0.44.0",
+    "cors": "^2.8.5",
+    "drizzle-orm": "^0.44.7",
+    "express": "^5.1.0",
+    "jsonwebtoken": "^9.0.2",
+    "pg": "^8.16.3",
+    "zod": "^4.1.12"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",
     "@tsconfig/node22": "^22.0.5",
+    "@types/cors": "^2.8.19",
     "@types/express": "^5.0.5",
+    "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "^24.10.1",
+    "@types/pg": "^8.15.6",
     "@vitest/coverage-v8": "^4.0.12",
     "@vitest/eslint-plugin": "^1.4.3",
+    "drizzle-kit": "^0.31.7",
     "eslint": "^9.39.1",
     "eslint-plugin-perfectionist": "^4.15.1",
     "husky": "^9.1.7",
