@@ -1,7 +1,7 @@
 import { RequestHandler } from "express";
 
-import { authenticateUserResponse, loginUserSchema, registerUserSchema } from "./users.schema.js";
-import { createUser, loginUser } from "./users.service.js";
+import { authenticateUserResponse, loginUserSchema, registerUserSchema } from "./schema.js";
+import { createUser, loginUser } from "./service.js";
 
 export const createUserHandler: RequestHandler = async (req, res) => {
   const body = registerUserSchema.parse(req.body);

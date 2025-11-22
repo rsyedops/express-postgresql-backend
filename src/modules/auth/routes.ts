@@ -1,6 +1,6 @@
 import express from "express";
 
-import { createUserHandler, loginUserHandler } from "./users.controller.js";
+import { createUserHandler, loginUserHandler } from "./controller.js";
 
 const router = express.Router();
 

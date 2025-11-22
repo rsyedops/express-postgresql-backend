@@ -1,1 +1,1 @@
-export { users } from "#modules/users/users.model.js";
+export { users } from "#modules/auth/model.js";

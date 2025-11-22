@@ -1,5 +1,5 @@
 import { errorMiddleware } from "#middleware/errorHandler.js";
-import { usersRouter } from "#modules/users/users.routes.js";
+import { usersRouter } from "#modules/auth/routes.js";
 import cors from "cors";
 import express, { json } from "express";
 export const app = express();

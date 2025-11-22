@@ -4,8 +4,8 @@ import { makeJWT } from "#lib/jwt/makeJWT.js";
 import { isUniqueConstraintError } from "#shared/db-errors.js";
 import { ConflictRequestError, NotFoundError, UnauthorizedError } from "#shared/errors.js";
 
-import { findUserByEmail, insertUser } from "./users.queries.js";
-import { LoginUserParams, registerUserParams } from "./users.schema.js";
+import { findUserByEmail, insertUser } from "./queries.js";
+import { LoginUserParams, registerUserParams } from "./schema.js";
 
 export const createUser = async ({ email, password, username }: registerUserParams["user"]) => {
   const hashedPassword = await hashPassword(password);
