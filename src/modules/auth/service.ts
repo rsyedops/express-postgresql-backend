@@ -4,8 +4,8 @@ import { makeJWT } from "#lib/jwt/makeJWT.js";
 import { isUniqueConstraintError } from "#shared/db-errors.js";
 import { ConflictRequestError, NotFoundError, UnauthorizedError } from "#shared/errors.js";
 
-import { findUserBy, insertUser } from "./queries.js";
-import { LoginUserParams, registerUserParams } from "./schema.js";
+import { findUserBy, insertUser, updateUserById } from "./queries.js";
+import { LoginUserParams, registerUserParams, UpdateUserParams } from "./schema.js";
 
 export const createUser = async ({ email, password, username }: registerUserParams["user"]) => {
   const hashedPassword = await hashPassword(password);
@@ -52,4 +52,26 @@ export const getCurrentUser = async (userId: string) => {
   if (!user) throw new NotFoundError(`user with id: ${userId} not found`);
 
   return user;
+};
+
+export const updateUser = async (userId: string, newUser: UpdateUserParams["user"]) => {
+  let hashedPassword: string | undefined = undefined;
+
+  if (newUser.password) hashedPassword = await hashPassword(newUser.password);
+
+  try {
+    const user = await updateUserById(userId, {
+      ...newUser,
+      hashedPassword,
+    });
+
+    return user;
+  } catch (err) {
+    if (isUniqueConstraintError(err)) {
+      throw new ConflictRequestError(
+        err.cause.constraint === "users_email_unique" ? "email already exists" : "username already exists",
+      );
+    }
+    throw err;
+  }
 };

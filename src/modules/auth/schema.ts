@@ -22,9 +22,22 @@ export const registerUserSchema = z.object({
 });
 export type registerUserParams = z.infer<typeof registerUserSchema>;
 
+export const updateUserSchema = z.object({
+  user: z.strictObject({
+    bio: z.string().optional(),
+    email: z.email().optional(),
+    image: z.string().optional(),
+    password: z.string().optional(),
+    username: z.string().optional(),
+  }),
+});
+export type UpdateUserParams = z.infer<typeof updateUserSchema>;
+
 // strip extra unwanted keys (e.g. hashed password)
 export const authenticateUserResponse = z.object({
   user: credentialsWithUsername.omit({ password: true }).extend({
+    bio: z.string().nullable(),
+    image: z.string().nullable(),
     token: z.string(),
   }),
 });

@@ -2,8 +2,8 @@ import { extractAuthToken } from "#utils/extractAuthToken.js";
 import { parseAuthenticatedRequest } from "#utils/parseAuthenticatedRequest.js";
 import { RequestHandler } from "express";
 
-import { authenticateUserResponse, loginUserSchema, registerUserSchema } from "./schema.js";
-import { createUser, getCurrentUser, loginUser } from "./service.js";
+import { authenticateUserResponse, loginUserSchema, registerUserSchema, updateUserSchema } from "./schema.js";
+import { createUser, getCurrentUser, loginUser, updateUser } from "./service.js";
 
 export const createUserHandler: RequestHandler = async (req, res) => {
   const body = registerUserSchema.parse(req.body);
@@ -25,6 +25,16 @@ export const getCurrentUserHandler: RequestHandler = async (req, res) => {
   const { userId } = parseAuthenticatedRequest(req);
   const user = await getCurrentUser(userId);
   const token = extractAuthToken(req);
+
+  return res.json(authenticateUserResponse.parse({ user: { ...user, token } }));
+};
+
+export const updateUserHandler: RequestHandler = async (req, res) => {
+  const { userId } = parseAuthenticatedRequest(req);
+  const body = updateUserSchema.parse(req.body);
+  const token = extractAuthToken(req);
+
+  const user = await updateUser(userId, body.user);
 
   return res.json(authenticateUserResponse.parse({ user: { ...user, token } }));
 };
