@@ -12,6 +12,16 @@ vi.mock("#modules/auth/service.ts", () => ({
   loginUser: vi.fn(),
 }));
 
+vi.mock("#config/env.ts", () => ({
+  env: {
+    DATABASE_URL: "postgres://user:pass@localhost:5432/test",
+    JWT_EXP: "test-jwt-exp",
+    JWT_ISSUER: "test-jwt-issuer",
+    JWT_SECRET: "test-jwt-secret",
+    PORT: "3000",
+  },
+}));
+
 const createUser = usersService.createUser as ReturnType<typeof vi.fn>;
 const loginUser = usersService.loginUser as ReturnType<typeof vi.fn>;
 
