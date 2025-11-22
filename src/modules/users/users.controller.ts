@@ -1,6 +1,6 @@
 import { RequestHandler } from "express";
 
-import { registerUserSchema } from "./users.schema.js";
+import { RegisterUserResponse, registerUserSchema } from "./users.schema.js";
 import { createUser } from "./users.service.js";
 
 export const createUserHandler: RequestHandler = async (req, res) => {
@@ -10,5 +10,5 @@ export const createUserHandler: RequestHandler = async (req, res) => {
 
   return res.status(201).json({
     user: newUser,
-  });
+  } satisfies RegisterUserResponse);
 };
