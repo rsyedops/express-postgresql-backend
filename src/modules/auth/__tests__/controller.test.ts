@@ -36,7 +36,9 @@ describe("POST /api/users", () => {
     };
 
     const mockedUser = {
+      bio: null,
       email: params.user.email,
+      image: null,
       token: "jwt.token",
       username: params.user.username,
     };
@@ -108,7 +110,9 @@ describe("POST /api/users/login", () => {
     };
 
     const mockedUser = {
+      bio: null,
       email: params.user.email,
+      image: null,
       token: "jwt.token",
       username: "test",
     };
