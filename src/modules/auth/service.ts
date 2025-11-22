@@ -4,7 +4,7 @@ import { makeJWT } from "#lib/jwt/makeJWT.js";
 import { isUniqueConstraintError } from "#shared/db-errors.js";
 import { ConflictRequestError, NotFoundError, UnauthorizedError } from "#shared/errors.js";
 
-import { findUserByEmail, insertUser } from "./queries.js";
+import { findUserBy, insertUser } from "./queries.js";
 import { LoginUserParams, registerUserParams } from "./schema.js";
 
 export const createUser = async ({ email, password, username }: registerUserParams["user"]) => {
@@ -33,7 +33,7 @@ export const createUser = async ({ email, password, username }: registerUserPara
 };
 
 export const loginUser = async ({ email, password }: LoginUserParams["user"]) => {
-  const user = await findUserByEmail(email);
+  const user = await findUserBy("email", email);
   if (!user) throw new NotFoundError(`user with email: ${email} not found`);
 
   const matches = await verifyPassword(user.hashedPassword, password);
@@ -45,4 +45,11 @@ export const loginUser = async ({ email, password }: LoginUserParams["user"]) =>
     ...user,
     token,
   };
+};
+
+export const getCurrentUser = async (userId: string) => {
+  const user = await findUserBy("id", userId);
+  if (!user) throw new NotFoundError(`user with id: ${userId} not found`);
+
+  return user;
 };

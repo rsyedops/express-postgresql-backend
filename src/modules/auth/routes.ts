@@ -1,10 +1,12 @@
+import { requireAuthMiddleware } from "#middleware/requireAuth.js";
 import express from "express";
 
-import { createUserHandler, loginUserHandler } from "./controller.js";
+import { createUserHandler, getCurrentUserHandler, loginUserHandler } from "./controller.js";
 
 const router = express.Router();
 
-router.post("/", createUserHandler);
-router.post("/login", loginUserHandler);
+router.post("/users", createUserHandler);
+router.post("/users/login", loginUserHandler);
+router.get("/user", requireAuthMiddleware, getCurrentUserHandler);
 
-export { router as usersRouter };
+export { router as AuthRouter };

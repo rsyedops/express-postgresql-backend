@@ -1,6 +1,6 @@
 import { db } from "#db/index.js";
 import { firstOrUndefined } from "#utils/firstOrUndefined.js";
-import { eq } from "drizzle-orm";
+import { eq, getTableColumns } from "drizzle-orm";
 
 import { NewUser, users } from "./model.js";
 
@@ -14,7 +14,9 @@ export const insertUser = async (user: NewUser) => {
   return newUser;
 };
 
-export const findUserByEmail = async (email: string) => {
+export const findUserBy = async (key: "email" | "id", value: string) => {
+  const columns = getTableColumns(users);
+
   const result = await db
     .select({
       email: users.email,
@@ -23,6 +25,6 @@ export const findUserByEmail = async (email: string) => {
       username: users.username,
     })
     .from(users)
-    .where(eq(users.email, email));
+    .where(eq(columns[key], value));
   return firstOrUndefined(result);
 };
