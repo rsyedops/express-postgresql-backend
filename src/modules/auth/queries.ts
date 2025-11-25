@@ -16,7 +16,7 @@ export const insertUser = async (user: NewUser) => {
   return newUser;
 };
 
-export const findUserBy = async (key: "email" | "id", value: string) => {
+export const findUserBy = async (key: "email" | "id" | "username", value: string) => {
   const columns = getTableColumns(users);
 
   const result = await db
