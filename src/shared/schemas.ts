@@ -7,6 +7,6 @@ export const errorResponseSchema = z.object({
 export type ErrorResponse = z.infer<typeof errorResponseSchema>;
 
 export const authenticatedRequestSchema = z.object({
-  userId: z.string(),
+  userId: z.uuid(),
 });
 export type AuthenticatedRequest = Request & z.infer<typeof authenticatedRequestSchema>;
