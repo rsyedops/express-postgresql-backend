@@ -9,6 +9,7 @@ import {
   findArticleBySlug,
   insertArticle,
   insertArticleTags,
+  selectAllTags,
   selectFeedArticles,
   selectFeedArticlesCount,
 } from "./queries.js";
@@ -70,4 +71,10 @@ export const getFeedArticles = async (currentUserId: string, filters?: GetAllArt
   const articlesCount = await selectFeedArticlesCount(currentUserId);
 
   return { articles, articlesCount };
+};
+
+export const getAllTags = async () => {
+  const tags = await selectAllTags();
+
+  return tags.map((item) => item.tag);
 };

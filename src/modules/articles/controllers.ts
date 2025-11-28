@@ -9,7 +9,7 @@ import {
   MultipleArticlesResponse,
   multipleArticlesResponseSchema,
 } from "./schemas.js";
-import { createArticle, getAllArticles, getArticle, getFeedArticles } from "./services.js";
+import { createArticle, getAllArticles, getAllTags, getArticle, getFeedArticles } from "./services.js";
 
 export const createArticleHandler: RequestHandler = async (req, res) => {
   const { userId } = parseAuthenticatedRequest(req);
@@ -55,4 +55,10 @@ export const getFeedArticlesHandler: RequestHandler = async (req, res) => {
   const response = multipleArticlesResponseSchema.parse(articles satisfies MultipleArticlesResponse);
 
   return res.json(response);
+};
+
+export const getTagsHandler: RequestHandler = async (req, res) => {
+  const tags = await getAllTags();
+
+  return res.json({ tags } satisfies { tags: string[] });
 };

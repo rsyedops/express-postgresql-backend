@@ -151,3 +151,13 @@ export const selectFeedArticles = async (
 
   return result;
 };
+
+export const selectAllTags = async () => {
+  const results = await db
+    .selectDistinct({
+      tag: articleTags.tag,
+    })
+    .from(articleTags);
+
+  return results;
+};
