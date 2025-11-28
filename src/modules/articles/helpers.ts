@@ -3,15 +3,15 @@ import { eq, sql } from "drizzle-orm";
 import { PgSelect } from "drizzle-orm/pg-core";
 
 //sub queries
-export function favoritedByCurrentUserSq(currentUserId?: string) {
+export function currentUserfollowingAuthorSq(currentUserId?: string) {
   return currentUserId
-    ? sql<boolean>`EXISTS (SELECT 1 FROM ${articlesFavorited} WHERE ${articlesFavorited.articleId} = ${articles.id} AND ${articlesFavorited.userId} = ${currentUserId})`
+    ? sql<boolean>`EXISTS (SELECT 1 FROM ${profileFollows} WHERE ${profileFollows.followeeId} = ${users.id} AND ${profileFollows.followerId} = ${currentUserId})`
     : sql<boolean>`FALSE`;
 }
 
-export function followingAuthorSq(currentUserId?: string) {
+export function favoritedByCurrentUserSq(currentUserId?: string) {
   return currentUserId
-    ? sql<boolean>`EXISTS (SELECT 1 FROM ${profileFollows} WHERE ${profileFollows.followeeId} = ${users.id} AND ${profileFollows.followerId} = ${currentUserId})`
+    ? sql<boolean>`EXISTS (SELECT 1 FROM ${articlesFavorited} WHERE ${articlesFavorited.articleId} = ${articles.id} AND ${articlesFavorited.userId} = ${currentUserId})`
     : sql<boolean>`FALSE`;
 }
 
@@ -30,6 +30,14 @@ export function withFavorited<T extends PgSelect>(qb: T, favoritedByUserId: stri
   return qb
     .innerJoin(articlesFavorited, eq(articlesFavorited.articleId, articles.id))
     .where(eq(articlesFavorited.userId, favoritedByUserId));
+}
+
+export function withPagination<T extends PgSelect>(qb: T, limit?: number, offset?: number) {
+  return qb.limit(limit ?? 20).offset(offset ?? 0);
+}
+
+export function withSlug<T extends PgSelect>(qb: T, slug: string) {
+  return qb.where(eq(articles.slug, slug));
 }
 
 export function withTag<T extends PgSelect>(qb: T, tag: string) {

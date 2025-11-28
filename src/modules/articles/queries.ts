@@ -4,11 +4,13 @@ import { firstOrUndefined } from "#utils/firstOrUndefined.js";
 import { and, count, desc, eq } from "drizzle-orm";
 
 import {
+  currentUserfollowingAuthorSq,
   favoritedByCurrentUserSq,
-  followingAuthorSq,
   tagListSq,
   withAuthor,
   withFavorited,
+  withPagination,
+  withSlug,
   withTag,
 } from "./helpers.js";
 import { articles, articlesFavorited, articleTags, NewArticle, NewArticleFavorite, NewArticleTag } from "./models.js";
@@ -24,12 +26,13 @@ export const insertArticleTags = async (tx: TransactionType, tags: NewArticleTag
   return result;
 };
 
-export const findArticleBySlug = async (slug: string, currentUserId?: string) => {
-  const result = await db
+// shared dynamic query builder
+const articleQb = (currentUserId?: string) => {
+  return db
     .select({
       author: {
         bio: users.bio,
-        following: followingAuthorSq(currentUserId),
+        following: currentUserfollowingAuthorSq(currentUserId),
         image: users.image,
         username: users.username,
       },
@@ -46,7 +49,14 @@ export const findArticleBySlug = async (slug: string, currentUserId?: string) =>
     })
     .from(articles)
     .innerJoin(users, eq(users.id, articles.authorId))
-    .where(eq(articles.slug, slug));
+    .$dynamic();
+};
+
+export const findArticleBySlug = async (slug: string, currentUserId?: string) => {
+  const query = withSlug(articleQb(currentUserId), slug);
+
+  const result = await query;
+
   return firstOrUndefined(result);
 };
 
@@ -69,34 +79,12 @@ export const findAllArticlesCount = async (filters?: GetAllArticlesParams) => {
 };
 
 export const findAllArticles = async (filters?: GetAllArticlesParams, currentUserId?: string) => {
-  let query = db
-    .select({
-      author: {
-        bio: users.bio,
-        following: followingAuthorSq(currentUserId),
-        image: users.image,
-        username: users.username,
-      },
-      createdAt: articles.createdAt,
-      description: articles.description,
-      favorited: favoritedByCurrentUserSq(currentUserId),
-      favoritesCount: db.$count(articlesFavorited, eq(articlesFavorited.articleId, articles.id)),
-      id: articles.id,
-      slug: articles.slug,
-      tagList: tagListSq(),
-      title: articles.title,
-      updatedAt: articles.updatedAt,
-    })
-    .from(articles)
-    .innerJoin(users, eq(users.id, articles.authorId))
-    .orderBy(desc(articles.createdAt))
-    .limit(filters?.limit ?? 20)
-    .offset(filters?.offset ?? 0)
-    .$dynamic();
+  let query = articleQb(currentUserId).orderBy(desc(articles.createdAt));
 
   if (filters?.author) query = withAuthor(query, filters.author);
   if (filters?.favorited) query = withFavorited(query, filters.favorited);
   if (filters?.tag) query = withTag(query, filters.tag);
+  query = withPagination(query, filters?.limit, filters?.offset);
 
   const result = await query;
   return result;
@@ -121,33 +109,16 @@ export const selectFeedArticles = async (
   currentUserId: string,
   filters?: Pick<GetAllArticlesParams, "limit" | "offset">,
 ) => {
-  const result = await db
-    .select({
-      author: {
-        bio: users.bio,
-        following: followingAuthorSq(currentUserId),
-        image: users.image,
-        username: users.username,
-      },
-      createdAt: articles.createdAt,
-      description: articles.description,
-      favorited: favoritedByCurrentUserSq(currentUserId),
-      favoritesCount: db.$count(articlesFavorited, eq(articlesFavorited.articleId, articles.id)),
-      id: articles.id,
-      slug: articles.slug,
-      tagList: tagListSq(),
-      title: articles.title,
-      updatedAt: articles.updatedAt,
-    })
-    .from(articles)
-    .innerJoin(users, eq(users.id, articles.authorId))
+  let query = articleQb(currentUserId)
     .innerJoin(
       profileFollows,
       and(eq(profileFollows.followerId, currentUserId), eq(profileFollows.followeeId, users.id)),
     )
-    .orderBy(desc(articles.createdAt))
-    .limit(filters?.limit ?? 20)
-    .offset(filters?.offset ?? 0);
+    .orderBy(desc(articles.createdAt));
+
+  query = withPagination(query, filters?.limit, filters?.offset);
+
+  const result = await query;
 
   return result;
 };
