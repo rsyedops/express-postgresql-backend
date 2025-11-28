@@ -1,12 +1,20 @@
 import { db } from "#db/index.js";
 import { makeSlug } from "#lib/slugify/makeSlug.js";
 import { findUserBy } from "#modules/auth/queries.js";
+import { NotFoundError, UnauthorizedError } from "#shared/errors.js";
 
-import { insertArticle, insertArticleTags } from "./queries.js";
-import { CreateArticleRequestSchema } from "./schemas.js";
+import {
+  findAllArticles,
+  findAllArticlesCount,
+  findArticleBySlug,
+  insertArticle,
+  insertArticleTags,
+} from "./queries.js";
+import { CreateArticleRequestSchema, GetAllArticlesParams } from "./schemas.js";
 
 export const createArticle = async (article: CreateArticleRequestSchema, userId: string) => {
   const author = await findUserBy("id", userId);
+  if (!author) throw new UnauthorizedError();
 
   const slug = makeSlug(article.title);
 
@@ -37,4 +45,19 @@ export const createArticle = async (article: CreateArticleRequestSchema, userId:
       tagList: article.tagList ?? [],
     };
   });
+};
+
+export const getArticle = async (slug: string, currentUserId?: string) => {
+  const article = await findArticleBySlug(slug, currentUserId);
+  if (!article) throw new NotFoundError(`Article: ${slug} not found`);
+
+  return article;
+};
+
+export const getAllArticles = async (filters?: GetAllArticlesParams, currentUserId?: string) => {
+  const articles = await findAllArticles(filters, currentUserId);
+
+  const articlesCount = await findAllArticlesCount(filters);
+
+  return { articles, articlesCount };
 };
