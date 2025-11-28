@@ -42,3 +42,4 @@ export const articlesFavorited = pgTable(
   },
   (table) => [primaryKey({ columns: [table.articleId, table.userId] })],
 );
+export type NewArticleFavorite = typeof articlesFavorited.$inferInsert;

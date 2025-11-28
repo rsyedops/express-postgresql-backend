@@ -9,7 +9,15 @@ import {
   MultipleArticlesResponse,
   multipleArticlesResponseSchema,
 } from "./schemas.js";
-import { createArticle, getAllArticles, getAllTags, getArticle, getFeedArticles } from "./services.js";
+import {
+  createArticle,
+  favoriteArticleBySlug,
+  getAllArticles,
+  getAllTags,
+  getArticle,
+  getFeedArticles,
+  unfavoriteArticleBySlug,
+} from "./services.js";
 
 export const createArticleHandler: RequestHandler = async (req, res) => {
   const { userId } = parseAuthenticatedRequest(req);
@@ -53,6 +61,30 @@ export const getFeedArticlesHandler: RequestHandler = async (req, res) => {
 
   const articles = await getFeedArticles(userId, { limit: params?.limit, offset: params?.offset });
   const response = multipleArticlesResponseSchema.parse(articles satisfies MultipleArticlesResponse);
+
+  return res.json(response);
+};
+
+export const favoriteArticleHandler: RequestHandler = async (req, res) => {
+  const { userId } = parseAuthenticatedRequest(req);
+
+  const slug = req.params.slug;
+
+  const article = await favoriteArticleBySlug(slug, userId);
+
+  const response = articleResponseSchema.parse(article satisfies ArticleResponse);
+
+  return res.json(response);
+};
+
+export const unfavoriteArticleHandler: RequestHandler = async (req, res) => {
+  const { userId } = parseAuthenticatedRequest(req);
+
+  const slug = req.params.slug;
+
+  const article = await unfavoriteArticleBySlug(slug, userId);
+
+  const response = articleResponseSchema.parse(article satisfies ArticleResponse);
 
   return res.json(response);
 };

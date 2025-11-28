@@ -11,7 +11,7 @@ import {
   withFavorited,
   withTag,
 } from "./helpers.js";
-import { articles, articlesFavorited, articleTags, NewArticle, NewArticleTag } from "./models.js";
+import { articles, articlesFavorited, articleTags, NewArticle, NewArticleFavorite, NewArticleTag } from "./models.js";
 import { GetAllArticlesParams } from "./schemas.js";
 
 export const insertArticle = async (tx: TransactionType, article: NewArticle) => {
@@ -150,6 +150,16 @@ export const selectFeedArticles = async (
     .offset(filters?.offset ?? 0);
 
   return result;
+};
+
+export const insertArticleFavorite = async (favorite: NewArticleFavorite) => {
+  return await db.insert(articlesFavorited).values(favorite).onConflictDoNothing();
+};
+
+export const deleteArticleFavorite = async (favorite: NewArticleFavorite) => {
+  return await db
+    .delete(articlesFavorited)
+    .where(and(eq(articlesFavorited.articleId, favorite.articleId), eq(articlesFavorited.userId, favorite.userId)));
 };
 
 export const selectAllTags = async () => {

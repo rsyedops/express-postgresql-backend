@@ -4,10 +4,12 @@ import { findUserBy } from "#modules/auth/queries.js";
 import { NotFoundError, UnauthorizedError } from "#shared/errors.js";
 
 import {
+  deleteArticleFavorite,
   findAllArticles,
   findAllArticlesCount,
   findArticleBySlug,
   insertArticle,
+  insertArticleFavorite,
   insertArticleTags,
   selectAllTags,
   selectFeedArticles,
@@ -71,6 +73,32 @@ export const getFeedArticles = async (currentUserId: string, filters?: GetAllArt
   const articlesCount = await selectFeedArticlesCount(currentUserId);
 
   return { articles, articlesCount };
+};
+
+export const favoriteArticleBySlug = async (slug: string, currentUserId: string) => {
+  const article = await findArticleBySlug(slug, currentUserId);
+
+  if (!article) throw new NotFoundError(`article: ${slug} not found`);
+
+  await insertArticleFavorite({
+    articleId: article.id,
+    userId: currentUserId,
+  });
+
+  return { article };
+};
+
+export const unfavoriteArticleBySlug = async (slug: string, currentUserId: string) => {
+  const article = await findArticleBySlug(slug, currentUserId);
+
+  if (!article) throw new NotFoundError(`article: ${slug} not found`);
+
+  await deleteArticleFavorite({
+    articleId: article.id,
+    userId: currentUserId,
+  });
+
+  return { article };
 };
 
 export const getAllTags = async () => {
