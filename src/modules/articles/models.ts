@@ -6,12 +6,13 @@ export const articles = pgTable("articles", {
     .notNull()
     .references(() => users.id, { onDelete: "cascade" }),
   body: text().notNull(),
-  createdAt: timestamp("created_at").defaultNow(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
   description: varchar("description", { length: 300 }).notNull(),
   id: uuid("id").notNull().defaultRandom().primaryKey(),
   slug: varchar("slug", { length: 256 }).notNull().unique(),
   title: varchar("title", { length: 100 }).notNull(),
   updatedAt: timestamp("updated_at")
+    .notNull()
     .defaultNow()
     .$onUpdate(() => new Date()),
 });
