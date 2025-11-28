@@ -9,6 +9,8 @@ import {
   findArticleBySlug,
   insertArticle,
   insertArticleTags,
+  selectFeedArticles,
+  selectFeedArticlesCount,
 } from "./queries.js";
 import { CreateArticleRequestSchema, GetAllArticlesParams } from "./schemas.js";
 
@@ -58,6 +60,14 @@ export const getAllArticles = async (filters?: GetAllArticlesParams, currentUser
   const articles = await findAllArticles(filters, currentUserId);
 
   const articlesCount = await findAllArticlesCount(filters);
+
+  return { articles, articlesCount };
+};
+
+export const getFeedArticles = async (currentUserId: string, filters?: GetAllArticlesParams) => {
+  const articles = await selectFeedArticles(currentUserId, filters);
+
+  const articlesCount = await selectFeedArticlesCount(currentUserId);
 
   return { articles, articlesCount };
 };

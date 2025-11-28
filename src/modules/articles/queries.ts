@@ -1,7 +1,7 @@
 import { db, TransactionType } from "#db/index.js";
-import { users } from "#db/schema.js";
+import { profileFollows, users } from "#db/schema.js";
 import { firstOrUndefined } from "#utils/firstOrUndefined.js";
-import { count, desc, eq } from "drizzle-orm";
+import { and, count, desc, eq } from "drizzle-orm";
 
 import {
   favoritedByCurrentUserSq,
@@ -99,5 +99,55 @@ export const findAllArticles = async (filters?: GetAllArticlesParams, currentUse
   if (filters?.tag) query = withTag(query, filters.tag);
 
   const result = await query;
+  return result;
+};
+
+export const selectFeedArticlesCount = async (currentUserId: string) => {
+  const result = await db
+    .select({
+      count: count(users.id),
+    })
+    .from(articles)
+    .innerJoin(users, eq(users.id, articles.authorId))
+    .innerJoin(
+      profileFollows,
+      and(eq(profileFollows.followerId, currentUserId), eq(profileFollows.followeeId, users.id)),
+    );
+
+  return result[0].count;
+};
+
+export const selectFeedArticles = async (
+  currentUserId: string,
+  filters?: Pick<GetAllArticlesParams, "limit" | "offset">,
+) => {
+  const result = await db
+    .select({
+      author: {
+        bio: users.bio,
+        following: followingAuthorSq(currentUserId),
+        image: users.image,
+        username: users.username,
+      },
+      createdAt: articles.createdAt,
+      description: articles.description,
+      favorited: favoritedByCurrentUserSq(currentUserId),
+      favoritesCount: db.$count(articlesFavorited, eq(articlesFavorited.articleId, articles.id)),
+      id: articles.id,
+      slug: articles.slug,
+      tagList: tagListSq(),
+      title: articles.title,
+      updatedAt: articles.updatedAt,
+    })
+    .from(articles)
+    .innerJoin(users, eq(users.id, articles.authorId))
+    .innerJoin(
+      profileFollows,
+      and(eq(profileFollows.followerId, currentUserId), eq(profileFollows.followeeId, users.id)),
+    )
+    .orderBy(desc(articles.createdAt))
+    .limit(filters?.limit ?? 20)
+    .offset(filters?.offset ?? 0);
+
   return result;
 };
