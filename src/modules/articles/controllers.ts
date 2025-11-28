@@ -89,7 +89,7 @@ export const unfavoriteArticleHandler: RequestHandler = async (req, res) => {
   return res.json(response);
 };
 
-export const getTagsHandler: RequestHandler = async (req, res) => {
+export const getTagsHandler: RequestHandler = async (_req, res) => {
   const tags = await getAllTags();
 
   return res.json({ tags } satisfies { tags: string[] });

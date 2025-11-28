@@ -59,7 +59,16 @@ export const getArticle = async (slug: string, currentUserId?: string) => {
   return article;
 };
 
-export const getAllArticles = async (filters?: GetAllArticlesParams, currentUserId?: string) => {
+export const getAllArticles = async (params?: GetAllArticlesParams, currentUserId?: string) => {
+  let favoritedByUserId: string | undefined = undefined;
+  if (params?.favorited) {
+    const user = await findUserBy("username", params.favorited);
+    if (!user) throw new NotFoundError(`user: ${params.favorited} not found`);
+    favoritedByUserId = user.id;
+  }
+
+  const filters = { ...params, favorited: favoritedByUserId };
+
   const articles = await findAllArticles(filters, currentUserId);
 
   const articlesCount = await findAllArticlesCount(filters);

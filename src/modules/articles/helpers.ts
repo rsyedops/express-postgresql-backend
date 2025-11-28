@@ -26,8 +26,10 @@ export function withAuthor<T extends PgSelect>(qb: T, author: string) {
   return qb.where(eq(users.username, author));
 }
 
-export function withFavorited<T extends PgSelect>(qb: T, favorited: string) {
-  return qb.innerJoin(articlesFavorited, eq(articlesFavorited.userId, users.id)).where(eq(users.username, favorited));
+export function withFavorited<T extends PgSelect>(qb: T, favoritedByUserId: string) {
+  return qb
+    .innerJoin(articlesFavorited, eq(articlesFavorited.articleId, articles.id))
+    .where(eq(articlesFavorited.userId, favoritedByUserId));
 }
 
 export function withTag<T extends PgSelect>(qb: T, tag: string) {
