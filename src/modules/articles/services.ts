@@ -2,6 +2,7 @@ import { db } from "#db/index.js";
 import { makeSlug } from "#lib/slugify/makeSlug.js";
 import { findUserBy } from "#modules/auth/queries.js";
 import { ForbiddenError, NotFoundError, UnauthorizedError } from "#shared/errors.js";
+import { makeAvatarUrl, profileWithImage } from "#utils/makeAvatarUrl.js";
 
 import {
   deleteArticleBySlug,
@@ -51,7 +52,7 @@ export const createArticle = async (article: CreateArticleRequestSchema, userId:
 
     return {
       ...newArticle,
-      author: { ...author, following: false },
+      author: profileWithImage({ ...author, following: false }),
       favorited: false,
       favoritesCount: 0,
       tagList: article.tagList ?? [],
@@ -76,6 +77,7 @@ export const updateArticle = async (params: UpdateArticleRequestSchema, slug: st
 
   return {
     ...article,
+    author: profileWithImage(article.author),
     ...updated,
   };
 };
@@ -92,7 +94,7 @@ export const getArticle = async (slug: string, currentUserId?: string) => {
   const article = await findArticleBySlug(slug, currentUserId);
   if (!article) throw new NotFoundError(`Article: ${slug} not found`);
 
-  return article;
+  return { ...article, author: profileWithImage(article.author) };
 };
 
 export const getAllArticles = async (params?: GetAllArticlesParams, currentUserId?: string) => {
@@ -109,7 +111,10 @@ export const getAllArticles = async (params?: GetAllArticlesParams, currentUserI
 
   const articlesCount = await findAllArticlesCount(filters);
 
-  return { articles, articlesCount };
+  return {
+    articles: articles.map((article) => ({ ...article, author: profileWithImage(article.author) })),
+    articlesCount,
+  };
 };
 
 export const getFeedArticles = async (currentUserId: string, filters?: GetAllArticlesParams) => {
@@ -117,7 +122,10 @@ export const getFeedArticles = async (currentUserId: string, filters?: GetAllArt
 
   const articlesCount = await selectFeedArticlesCount(currentUserId);
 
-  return { articles, articlesCount };
+  return {
+    articles: articles.map((article) => ({ ...article, author: profileWithImage(article.author) })),
+    articlesCount,
+  };
 };
 
 export const favoriteArticleBySlug = async (slug: string, currentUserId: string) => {
@@ -130,7 +138,7 @@ export const favoriteArticleBySlug = async (slug: string, currentUserId: string)
     userId: currentUserId,
   });
 
-  return { article: { ...article, favorited: true } };
+  return { ...article, author: profileWithImage(article.author), favorited: true };
 };
 
 export const unfavoriteArticleBySlug = async (slug: string, currentUserId: string) => {
@@ -143,7 +151,7 @@ export const unfavoriteArticleBySlug = async (slug: string, currentUserId: strin
     userId: currentUserId,
   });
 
-  return { article: { ...article, favorited: false } };
+  return { ...article, author: profileWithImage(article.author), favorited: false };
 };
 
 export const getAllTags = async () => {
@@ -158,7 +166,7 @@ export const getArticleComments = async (slug: string, currentUserId?: string) =
 
   const result = await findArticleCommentsBySlug(slug, currentUserId);
 
-  return result;
+  return result.map((comment) => ({ ...comment, author: profileWithImage(comment.author) }));
 };
 
 export const addCommentToArticle = async (slug: string, body: string, currentUserId: string) => {
@@ -183,7 +191,7 @@ export const addCommentToArticle = async (slug: string, body: string, currentUse
         bio: author.bio,
         // self
         following: false,
-        image: author.image,
+        image: makeAvatarUrl(author.image),
         username: author.username,
       },
     },

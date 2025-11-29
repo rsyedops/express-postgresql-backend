@@ -7,5 +7,6 @@ export const env = z
     JWT_ISSUER: z.string(),
     JWT_SECRET: z.string(),
     PORT: z.coerce.number(),
+    PUBLIC_URL: z.string(),
   })
   .parse(process.env);

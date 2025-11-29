@@ -106,7 +106,7 @@ export const favoriteArticleHandler: RequestHandler = async (req, res) => {
 
   const article = await favoriteArticleBySlug(slug, userId);
 
-  const response = articleResponseSchema.parse(article satisfies ArticleResponse);
+  const response = articleResponseSchema.parse({ article } satisfies ArticleResponse);
 
   return res.json(response);
 };
@@ -118,7 +118,7 @@ export const unfavoriteArticleHandler: RequestHandler = async (req, res) => {
 
   const article = await unfavoriteArticleBySlug(slug, userId);
 
-  const response = articleResponseSchema.parse(article satisfies ArticleResponse);
+  const response = articleResponseSchema.parse({ article } satisfies ArticleResponse);
 
   return res.json(response);
 };

@@ -3,6 +3,7 @@ import { verifyPassword } from "#lib/crypto/verifyPassword.js";
 import { makeJWT } from "#lib/jwt/makeJWT.js";
 import { isUniqueConstraintError } from "#shared/db-errors.js";
 import { ConflictRequestError, NotFoundError, UnauthorizedError } from "#shared/errors.js";
+import { makeAvatarUrl } from "#utils/makeAvatarUrl.js";
 
 import { findUserBy, insertUser, updateUserById } from "./queries.js";
 import { LoginUserParams, registerUserParams, UpdateUserParams } from "./schema.js";
@@ -20,6 +21,7 @@ export const createUser = async ({ email, password, username }: registerUserPara
 
     return {
       ...newUser,
+      image: makeAvatarUrl(newUser.image),
       token,
     };
   } catch (err) {
@@ -43,6 +45,7 @@ export const loginUser = async ({ email, password }: LoginUserParams["user"]) =>
 
   return {
     ...user,
+    image: makeAvatarUrl(user.image),
     token,
   };
 };
@@ -51,7 +54,7 @@ export const getCurrentUser = async (userId: string) => {
   const user = await findUserBy("id", userId);
   if (!user) throw new NotFoundError(`user with id: ${userId} not found`);
 
-  return user;
+  return { ...user, image: makeAvatarUrl(user.image) };
 };
 
 export const updateUser = async (userId: string, newUser: UpdateUserParams["user"]) => {
@@ -65,7 +68,10 @@ export const updateUser = async (userId: string, newUser: UpdateUserParams["user
       hashedPassword,
     });
 
-    return user;
+    return {
+      ...user,
+      image: makeAvatarUrl(user.image),
+    };
   } catch (err) {
     if (isUniqueConstraintError(err)) {
       throw new ConflictRequestError(

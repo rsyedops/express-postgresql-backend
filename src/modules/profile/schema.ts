@@ -6,6 +6,7 @@ export const profileSchema = z.object({
   image: z.string().nullable(),
   username: z.string(),
 });
+export type Profile = z.infer<typeof profileSchema>;
 export const profileResponseSchema = z.object({
   profile: profileSchema,
 });
