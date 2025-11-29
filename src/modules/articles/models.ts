@@ -18,6 +18,23 @@ export const articles = pgTable("articles", {
 });
 export type NewArticle = typeof articles.$inferInsert;
 
+export const comments = pgTable("comments", {
+  articleId: uuid("article_id")
+    .notNull()
+    .references(() => articles.id, { onDelete: "cascade" }),
+  authorId: uuid("author_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  body: text().notNull(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  id: uuid("id").notNull().defaultRandom().primaryKey(),
+  updatedAt: timestamp("updated_at")
+    .notNull()
+    .defaultNow()
+    .$onUpdate(() => new Date()),
+});
+export type NewComment = typeof comments.$inferInsert;
+
 export const articleTags = pgTable(
   "article_tags",
   {
