@@ -4,6 +4,7 @@ import { findUserBy } from "#modules/auth/queries.js";
 import { ForbiddenError, NotFoundError, UnauthorizedError } from "#shared/errors.js";
 
 import {
+  deleteArticleBySlug,
   deleteArticleFavorite,
   deleteCommentById,
   findAllArticles,
@@ -19,8 +20,9 @@ import {
   selectAllTags,
   selectFeedArticles,
   selectFeedArticlesCount,
+  updateArticleBySlug,
 } from "./queries.js";
-import { CreateArticleRequestSchema, GetAllArticlesParams } from "./schemas.js";
+import { CreateArticleRequestSchema, GetAllArticlesParams, UpdateArticleRequestSchema } from "./schemas.js";
 
 export const createArticle = async (article: CreateArticleRequestSchema, userId: string) => {
   const author = await findUserBy("id", userId);
@@ -55,6 +57,35 @@ export const createArticle = async (article: CreateArticleRequestSchema, userId:
       tagList: article.tagList ?? [],
     };
   });
+};
+
+export const updateArticle = async (params: UpdateArticleRequestSchema, slug: string, currentUserId: string) => {
+  const article = await findArticleBySlug(slug, currentUserId);
+  if (!article) throw new NotFoundError(`Article: ${slug} not found`);
+  if (article.author.id !== currentUserId) throw new ForbiddenError();
+
+  const newSlug = params.title && params.title !== article.title ? makeSlug(params.title) : undefined;
+
+  const updated = await updateArticleBySlug(
+    {
+      ...params,
+      slug: newSlug,
+    },
+    slug,
+  );
+
+  return {
+    ...article,
+    ...updated,
+  };
+};
+
+export const deleteArticle = async (slug: string, currentUserId: string) => {
+  const article = await findArticleIdBySlug(slug);
+  if (!article) throw new NotFoundError(`Article: ${slug} not found`);
+  if (article.authorId !== currentUserId) throw new ForbiddenError();
+
+  return await deleteArticleBySlug(slug);
 };
 
 export const getArticle = async (slug: string, currentUserId?: string) => {

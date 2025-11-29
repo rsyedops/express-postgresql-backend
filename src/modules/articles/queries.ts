@@ -30,13 +30,31 @@ export const insertArticle = async (tx: TransactionType, article: NewArticle) =>
   return result[0];
 };
 
+export const updateArticleBySlug = async (article: Partial<NewArticle>, slug: string) => {
+  const [result] = await db.update(articles).set(article).where(eq(articles.slug, slug)).returning({
+    body: articles.body,
+    description: articles.description,
+    slug: articles.slug,
+    title: articles.title,
+  });
+
+  return result;
+};
+
+export const deleteArticleBySlug = async (slug: string) => {
+  return await db.delete(articles).where(eq(articles.slug, slug));
+};
+
 export const insertArticleTags = async (tx: TransactionType, tags: NewArticleTag[]) => {
   const result = await tx.insert(articleTags).values(tags).returning();
   return result;
 };
 
 export const findArticleIdBySlug = async (slug: string) => {
-  const result = await db.select({ id: articles.id }).from(articles).where(eq(articles.slug, slug));
+  const result = await db
+    .select({ authorId: articles.authorId, id: articles.id })
+    .from(articles)
+    .where(eq(articles.slug, slug));
   return firstOrUndefined(result);
 };
 
@@ -47,6 +65,7 @@ const articleQb = (currentUserId?: string) => {
       author: {
         bio: users.bio,
         following: currentUserfollowingAuthorSq(currentUserId),
+        id: users.id,
         image: users.image,
         username: users.username,
       },

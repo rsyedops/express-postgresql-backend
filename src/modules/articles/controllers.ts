@@ -13,10 +13,12 @@ import {
   multipleArticlesResponseSchema,
   MultipleCommentsResponse,
   MultipleCommentsResponseSchema,
+  updateArticleRequestSchema,
 } from "./schemas.js";
 import {
   addCommentToArticle,
   createArticle,
+  deleteArticle,
   deleteComment,
   favoriteArticleBySlug,
   getAllArticles,
@@ -25,6 +27,7 @@ import {
   getArticleComments,
   getFeedArticles,
   unfavoriteArticleBySlug,
+  updateArticle,
 } from "./services.js";
 
 export const createArticleHandler: RequestHandler = async (req, res) => {
@@ -35,7 +38,30 @@ export const createArticleHandler: RequestHandler = async (req, res) => {
   const article = await createArticle(body.article, userId);
   const response = articleResponseSchema.parse({ article } satisfies ArticleResponse);
 
-  res.json(response);
+  return res.json(response);
+};
+
+export const updateArticleHandler: RequestHandler = async (req, res) => {
+  const { userId } = parseAuthenticatedRequest(req);
+
+  const slug = req.params.slug;
+  const body = updateArticleRequestSchema.parse(req.body);
+
+  const article = await updateArticle(body.article, slug, userId);
+
+  const response = articleResponseSchema.parse({ article } satisfies ArticleResponse);
+
+  return res.json(response);
+};
+
+export const deleteArticleHandler: RequestHandler = async (req, res) => {
+  const { userId } = parseAuthenticatedRequest(req);
+
+  const slug = req.params.slug;
+
+  await deleteArticle(slug, userId);
+
+  return res.status(204).end();
 };
 
 export const getArticleHandler: RequestHandler = async (req, res) => {

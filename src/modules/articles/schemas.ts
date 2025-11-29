@@ -2,15 +2,20 @@ import { profileSchema } from "#modules/profile/schema.js";
 import z from "zod";
 
 const baseArticleSchema = z.object({
-  body: z.string(),
-  description: z.string().max(300, "Description must be <= 300 chatacters "),
+  body: z.string().min(1, "body is required"),
+  description: z.string().min(1, "description is required").max(300, "description must be <= 300 chatacters "),
   tagList: z.array(z.string()).optional(),
-  title: z.string().max(100, "Title must be <= 100 characters"),
+  title: z.string().min(1, "title is required").max(100, "title must be <= 100 characters"),
 });
 export const createArticleRequestSchema = z.object({
   article: baseArticleSchema,
 });
 export type CreateArticleRequestSchema = z.infer<typeof createArticleRequestSchema>["article"];
+
+export const updateArticleRequestSchema = z.object({
+  article: baseArticleSchema.omit({ tagList: true }).partial(),
+});
+export type UpdateArticleRequestSchema = z.infer<typeof updateArticleRequestSchema>["article"];
 
 const articleSchema = baseArticleSchema.extend({
   author: profileSchema,
