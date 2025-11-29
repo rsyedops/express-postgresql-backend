@@ -5,16 +5,24 @@ import {
   ArticleResponse,
   articleResponseSchema,
   createArticleRequestSchema,
+  createCommentRequestSchema,
+  CreateCommentResponse,
+  createCommentResponseSchema,
   getAllArticlesParams,
   MultipleArticlesResponse,
   multipleArticlesResponseSchema,
+  MultipleCommentsResponse,
+  MultipleCommentsResponseSchema,
 } from "./schemas.js";
 import {
+  addCommentToArticle,
   createArticle,
+  deleteComment,
   favoriteArticleBySlug,
   getAllArticles,
   getAllTags,
   getArticle,
+  getArticleComments,
   getFeedArticles,
   unfavoriteArticleBySlug,
 } from "./services.js";
@@ -93,4 +101,38 @@ export const getTagsHandler: RequestHandler = async (_req, res) => {
   const tags = await getAllTags();
 
   return res.json({ tags } satisfies { tags: string[] });
+};
+
+export const getArticleCommentsHandler: RequestHandler = async (req, res) => {
+  const userId = parseAuthenticatedRequest(req, false)?.userId;
+  const slug = req.params.slug;
+
+  const comments = await getArticleComments(slug, userId);
+
+  const response = MultipleCommentsResponseSchema.parse({ comments } satisfies MultipleCommentsResponse);
+
+  return res.json(response);
+};
+
+export const addArticleCommentHandler: RequestHandler = async (req, res) => {
+  const { userId } = parseAuthenticatedRequest(req);
+
+  const slug = req.params.slug;
+  const { comment } = createCommentRequestSchema.parse(req.body);
+
+  const newComment = await addCommentToArticle(slug, comment.body, userId);
+
+  const response = createCommentResponseSchema.parse(newComment satisfies CreateCommentResponse);
+
+  return res.status(201).json(response);
+};
+
+export const deleteCommentHandler: RequestHandler = async (req, res) => {
+  const { userId } = parseAuthenticatedRequest(req);
+
+  const { id, slug } = req.params;
+
+  await deleteComment(slug, id, userId);
+
+  return res.status(204).end();
 };

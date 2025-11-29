@@ -1,16 +1,21 @@
 import { db } from "#db/index.js";
 import { makeSlug } from "#lib/slugify/makeSlug.js";
 import { findUserBy } from "#modules/auth/queries.js";
-import { NotFoundError, UnauthorizedError } from "#shared/errors.js";
+import { ForbiddenError, NotFoundError, UnauthorizedError } from "#shared/errors.js";
 
 import {
   deleteArticleFavorite,
+  deleteCommentById,
   findAllArticles,
   findAllArticlesCount,
   findArticleBySlug,
+  findArticleCommentsBySlug,
+  findArticleIdBySlug,
+  findCommentById,
   insertArticle,
   insertArticleFavorite,
   insertArticleTags,
+  insertComment,
   selectAllTags,
   selectFeedArticles,
   selectFeedArticlesCount,
@@ -94,7 +99,7 @@ export const favoriteArticleBySlug = async (slug: string, currentUserId: string)
     userId: currentUserId,
   });
 
-  return { article };
+  return { article: { ...article, favorited: true } };
 };
 
 export const unfavoriteArticleBySlug = async (slug: string, currentUserId: string) => {
@@ -107,11 +112,61 @@ export const unfavoriteArticleBySlug = async (slug: string, currentUserId: strin
     userId: currentUserId,
   });
 
-  return { article };
+  return { article: { ...article, favorited: false } };
 };
 
 export const getAllTags = async () => {
   const tags = await selectAllTags();
 
   return tags.map((item) => item.tag);
+};
+
+export const getArticleComments = async (slug: string, currentUserId?: string) => {
+  const article = await findArticleIdBySlug(slug);
+  if (!article) throw new NotFoundError(`article: ${slug} not found`);
+
+  const result = await findArticleCommentsBySlug(slug, currentUserId);
+
+  return result;
+};
+
+export const addCommentToArticle = async (slug: string, body: string, currentUserId: string) => {
+  const article = await findArticleIdBySlug(slug);
+  if (!article) throw new NotFoundError(`article: ${slug} not found`);
+
+  const author = await findUserBy("id", currentUserId);
+  if (!author) throw new UnauthorizedError();
+
+  const comment = await insertComment({
+    articleId: article.id,
+    authorId: currentUserId,
+    body,
+  });
+
+  if (!comment) throw new Error(`failed to add comment to ${slug}`);
+
+  return {
+    comment: {
+      ...comment,
+      author: {
+        bio: author.bio,
+        // self
+        following: false,
+        image: author.image,
+        username: author.username,
+      },
+    },
+  };
+};
+
+export const deleteComment = async (slug: string, commentId: string, currentUserId: string) => {
+  const comment = await findCommentById(commentId);
+
+  if (comment?.articleSlug !== slug) throw new NotFoundError(`comment: ${commentId} not found`);
+  if (comment.authorId !== currentUserId) throw new ForbiddenError();
+
+  const deleted = await deleteCommentById(commentId);
+  if (!deleted) throw new Error(`Failed to delete comment: ${commentId}`);
+
+  return deleted;
 };

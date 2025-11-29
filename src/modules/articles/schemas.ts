@@ -40,3 +40,24 @@ export const multipleArticlesResponseSchema = z.object({
   articlesCount: z.number(),
 });
 export type MultipleArticlesResponse = z.infer<typeof multipleArticlesResponseSchema>;
+
+export const baseCommentSchema = z.object({
+  author: profileSchema,
+  body: z.string(),
+  createdAt: z.date(),
+  id: z.uuid(),
+  updatedAt: z.date(),
+});
+export const createCommentRequestSchema = z.object({
+  comment: z.object({
+    body: z.string(),
+  }),
+});
+export const createCommentResponseSchema = z.object({
+  comment: baseCommentSchema,
+});
+export type CreateCommentResponse = z.infer<typeof createCommentResponseSchema>;
+export const MultipleCommentsResponseSchema = z.object({
+  comments: z.array(baseCommentSchema),
+});
+export type MultipleCommentsResponse = z.infer<typeof MultipleCommentsResponseSchema>;
