@@ -38,7 +38,7 @@ export const createArticleHandler: RequestHandler = async (req, res) => {
   const article = await createArticle(body.article, userId);
   const response = articleResponseSchema.parse({ article } satisfies ArticleResponse);
 
-  return res.json(response);
+  return res.status(201).json(response);
 };
 
 export const updateArticleHandler: RequestHandler = async (req, res) => {
