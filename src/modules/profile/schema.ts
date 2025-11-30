@@ -7,6 +7,8 @@ export const profileSchema = z.object({
   username: z.string(),
 });
 export type Profile = z.infer<typeof profileSchema>;
+
 export const profileResponseSchema = z.object({
   profile: profileSchema,
 });
+export type ProfileResponse = z.infer<typeof profileResponseSchema>;

@@ -1,7 +1,7 @@
 import { parseAuthenticatedRequest } from "#utils/parseAuthenticatedRequest.js";
 import { RequestHandler } from "express";
 
-import { profileResponseSchema } from "./schema.js";
+import { ProfileResponse, profileResponseSchema } from "./schema.js";
 import { followProfile, getProfile, unfollowProfile } from "./service.js";
 
 export const getProfileHandler: RequestHandler = async (req, res) => {
@@ -11,7 +11,7 @@ export const getProfileHandler: RequestHandler = async (req, res) => {
 
   const profile = await getProfile(username, userId);
 
-  return res.json(profileResponseSchema.parse({ profile }));
+  return res.json(profileResponseSchema.parse({ profile } satisfies ProfileResponse));
 };
 
 export const followProfileHandler: RequestHandler = async (req, res) => {
@@ -21,7 +21,7 @@ export const followProfileHandler: RequestHandler = async (req, res) => {
 
   const profile = await followProfile(username, userId);
 
-  return res.json(profileResponseSchema.parse({ profile }));
+  return res.json(profileResponseSchema.parse({ profile } satisfies ProfileResponse));
 };
 
 export const unfollowProfileHandler: RequestHandler = async (req, res) => {
@@ -31,5 +31,5 @@ export const unfollowProfileHandler: RequestHandler = async (req, res) => {
 
   const profile = await unfollowProfile(username, userId);
 
-  return res.json(profileResponseSchema.parse({ profile }));
+  return res.json(profileResponseSchema.parse({ profile } satisfies ProfileResponse));
 };
