@@ -62,16 +62,13 @@ export const updateUser = async (userId: string, newUser: UpdateUserParams["user
 
   if (newUser.password) hashedPassword = await hashPassword(newUser.password);
 
+  let user: Awaited<ReturnType<typeof updateUserById>> | undefined;
+
   try {
-    const user = await updateUserById(userId, {
+    user = await updateUserById(userId, {
       ...newUser,
       hashedPassword,
     });
-
-    return {
-      ...user,
-      image: makeAvatarUrl(user.image),
-    };
   } catch (err) {
     if (isUniqueConstraintError(err)) {
       throw new ConflictRequestError(
@@ -80,4 +77,10 @@ export const updateUser = async (userId: string, newUser: UpdateUserParams["user
     }
     throw err;
   }
+  if (!user) throw new NotFoundError("user not found");
+
+  return {
+    ...user,
+    image: makeAvatarUrl(user.image),
+  };
 };

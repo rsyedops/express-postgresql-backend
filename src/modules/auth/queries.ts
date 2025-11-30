@@ -34,12 +34,12 @@ export const findUserBy = async (key: "email" | "id" | "username", value: string
 };
 
 export const updateUserById = async (id: string, user: Partial<NewUser>) => {
-  const [result] = await db.update(users).set(user).where(eq(users.id, id)).returning({
+  const result = await db.update(users).set(user).where(eq(users.id, id)).returning({
     bio: users.bio,
     email: users.email,
     image: users.image,
     username: users.username,
   });
 
-  return result;
+  return firstOrUndefined(result);
 };
