@@ -1,4 +1,4 @@
-import { profileSchema } from "#modules/profile/schema.js";
+import { profileSchema } from "#modules/profile/schemas.js";
 import z from "zod";
 
 const baseArticleSchema = z.object({

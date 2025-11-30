@@ -2,7 +2,7 @@ import { db } from "#db/index.js";
 import { firstOrUndefined } from "#utils/firstOrUndefined.js";
 import { eq, getTableColumns } from "drizzle-orm";
 
-import { NewUser, users } from "./model.js";
+import { NewUser, users } from "./models.js";
 
 export const insertUser = async (user: NewUser) => {
   const [newUser] = await db.insert(users).values(user).returning({

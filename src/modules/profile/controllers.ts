@@ -1,8 +1,8 @@
 import { parseAuthenticatedRequest } from "#utils/parseAuthenticatedRequest.js";
 import { RequestHandler } from "express";
 
-import { ProfileResponse, profileResponseSchema } from "./schema.js";
-import { followProfile, getProfile, unfollowProfile } from "./service.js";
+import { ProfileResponse, profileResponseSchema } from "./schemas.js";
+import { followProfile, getProfile, unfollowProfile } from "./services.js";
 
 export const getProfileHandler: RequestHandler = async (req, res) => {
   const userId = parseAuthenticatedRequest(req, false)?.userId;

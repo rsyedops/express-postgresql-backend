@@ -1,7 +1,7 @@
 import { requireAuthMiddleware } from "#middleware/requireAuth.js";
 import express from "express";
 
-import { createUserHandler, getCurrentUserHandler, loginUserHandler, updateUserHandler } from "./controller.js";
+import { createUserHandler, getCurrentUserHandler, loginUserHandler, updateUserHandler } from "./controllers.js";
 
 const router = express.Router();
 

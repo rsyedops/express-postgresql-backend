@@ -8,8 +8,8 @@ import {
   loginUserSchema,
   registerUserSchema,
   updateUserSchema,
-} from "./schema.js";
-import { createUser, getCurrentUser, loginUser, updateUser } from "./service.js";
+} from "./schemas.js";
+import { createUser, getCurrentUser, loginUser, updateUser } from "./services.js";
 
 export const createUserHandler: RequestHandler = async (req, res) => {
   const body = registerUserSchema.parse(req.body);

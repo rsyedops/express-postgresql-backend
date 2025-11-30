@@ -3,7 +3,7 @@ import { users } from "#db/schema.js";
 import { firstOrUndefined } from "#utils/firstOrUndefined.js";
 import { and, eq, sql } from "drizzle-orm";
 
-import { profileFollows } from "./model.js";
+import { profileFollows } from "./models.js";
 
 export const findProfileWithFollowing = async (username: string, currentUserId: string) => {
   const result = await db

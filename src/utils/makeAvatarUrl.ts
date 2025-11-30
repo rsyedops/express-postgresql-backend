@@ -1,5 +1,5 @@
 import { env } from "#config/env.js";
-import { Profile } from "#modules/profile/schema.js";
+import { Profile } from "#modules/profile/schemas.js";
 
 export const makeAvatarUrl = (image: null | string) => {
   return image ?? `${env.PUBLIC_URL}/images/smiley-cyrus.jpeg`;

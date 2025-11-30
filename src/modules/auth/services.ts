@@ -6,7 +6,7 @@ import { ConflictRequestError, NotFoundError, UnauthorizedError } from "#shared/
 import { makeAvatarUrl } from "#utils/makeAvatarUrl.js";
 
 import { findUserBy, insertUser, updateUserById } from "./queries.js";
-import { LoginUserParams, registerUserParams, UpdateUserParams } from "./schema.js";
+import { LoginUserParams, registerUserParams, UpdateUserParams } from "./schemas.js";
 
 export const createUser = async ({ email, password, username }: registerUserParams["user"]) => {
   const hashedPassword = await hashPassword(password);

@@ -2,7 +2,7 @@ import { optionalAuthMiddleware } from "#middleware/optionalAuth.js";
 import { requireAuthMiddleware } from "#middleware/requireAuth.js";
 import express from "express";
 
-import { followProfileHandler, getProfileHandler, unfollowProfileHandler } from "./controller.js";
+import { followProfileHandler, getProfileHandler, unfollowProfileHandler } from "./controllers.js";
 
 const router = express.Router();
 

@@ -4,10 +4,10 @@ import { errorResponseSchema } from "#shared/schemas.js";
 import request from "supertest";
 import { describe, expect, it, vi } from "vitest";
 
-import { registerUserParams } from "../schema.js";
-import * as usersService from "../service.js";
+import { registerUserParams } from "../schemas.js";
+import * as usersService from "../services.js";
 
-vi.mock("#modules/auth/service.ts", () => ({
+vi.mock("#modules/auth/services.ts", () => ({
   createUser: vi.fn(),
   loginUser: vi.fn(),
 }));
