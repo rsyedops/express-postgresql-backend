@@ -34,10 +34,11 @@ export const updateUserSchema = z.object({
 export type UpdateUserParams = z.infer<typeof updateUserSchema>;
 
 // strip extra unwanted keys (e.g. hashed password)
-export const authenticateUserResponse = z.object({
+export const authenticateUserResponseSchema = z.object({
   user: credentialsWithUsername.omit({ password: true }).extend({
     bio: z.string().nullable(),
     image: z.string().nullable(),
     token: z.string(),
   }),
 });
+export type AuthenticateUserResponse = z.infer<typeof authenticateUserResponseSchema>;

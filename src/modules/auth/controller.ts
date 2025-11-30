@@ -2,7 +2,13 @@ import { extractAuthToken } from "#utils/extractAuthToken.js";
 import { parseAuthenticatedRequest } from "#utils/parseAuthenticatedRequest.js";
 import { RequestHandler } from "express";
 
-import { authenticateUserResponse, loginUserSchema, registerUserSchema, updateUserSchema } from "./schema.js";
+import {
+  AuthenticateUserResponse,
+  authenticateUserResponseSchema,
+  loginUserSchema,
+  registerUserSchema,
+  updateUserSchema,
+} from "./schema.js";
 import { createUser, getCurrentUser, loginUser, updateUser } from "./service.js";
 
 export const createUserHandler: RequestHandler = async (req, res) => {
@@ -10,7 +16,7 @@ export const createUserHandler: RequestHandler = async (req, res) => {
 
   const user = await createUser(body.user);
 
-  return res.status(201).json(authenticateUserResponse.parse({ user }));
+  return res.status(201).json(authenticateUserResponseSchema.parse({ user } satisfies AuthenticateUserResponse));
 };
 
 export const loginUserHandler: RequestHandler = async (req, res) => {
@@ -18,7 +24,7 @@ export const loginUserHandler: RequestHandler = async (req, res) => {
 
   const user = await loginUser(body.user);
 
-  return res.json(authenticateUserResponse.parse({ user }));
+  return res.json(authenticateUserResponseSchema.parse({ user } satisfies AuthenticateUserResponse));
 };
 
 export const getCurrentUserHandler: RequestHandler = async (req, res) => {
@@ -26,7 +32,9 @@ export const getCurrentUserHandler: RequestHandler = async (req, res) => {
   const user = await getCurrentUser(userId);
   const token = extractAuthToken(req);
 
-  return res.json(authenticateUserResponse.parse({ user: { ...user, token } }));
+  return res.json(
+    authenticateUserResponseSchema.parse({ user: { ...user, token } } satisfies AuthenticateUserResponse),
+  );
 };
 
 export const updateUserHandler: RequestHandler = async (req, res) => {
@@ -36,5 +44,7 @@ export const updateUserHandler: RequestHandler = async (req, res) => {
 
   const user = await updateUser(userId, body.user);
 
-  return res.json(authenticateUserResponse.parse({ user: { ...user, token } }));
+  return res.json(
+    authenticateUserResponseSchema.parse({ user: { ...user, token } } satisfies AuthenticateUserResponse),
+  );
 };
