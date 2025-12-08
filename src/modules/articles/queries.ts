@@ -126,13 +126,12 @@ export const findAllArticles = async (filters?: GetAllArticlesParams, currentUse
 export const selectFeedArticlesCount = async (currentUserId: string) => {
   const result = await db
     .select({
-      count: count(users.id),
+      count: count(),
     })
     .from(articles)
-    .innerJoin(users, eq(users.id, articles.authorId))
     .innerJoin(
       profileFollows,
-      and(eq(profileFollows.followerId, currentUserId), eq(profileFollows.followeeId, users.id)),
+      and(eq(profileFollows.followerId, currentUserId), eq(profileFollows.followeeId, articles.authorId)),
     );
 
   return result[0].count;
@@ -145,7 +144,7 @@ export const selectFeedArticles = async (
   let query = articleQb(currentUserId)
     .innerJoin(
       profileFollows,
-      and(eq(profileFollows.followerId, currentUserId), eq(profileFollows.followeeId, users.id)),
+      and(eq(profileFollows.followerId, currentUserId), eq(profileFollows.followeeId, articles.authorId)),
     )
     .orderBy(desc(articles.createdAt));
 
