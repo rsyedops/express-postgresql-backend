@@ -4,11 +4,10 @@ WORKDIR /app
 
 COPY package*.json ./
 
-ARG NODE_ENV
-RUN if [ "$NODE_ENV" = "production" ]; then npm install --omit=dev; else npm install; fi
+RUN npm install
 
 COPY . .
 
 EXPOSE 3000
 
-CMD ["sh", "-c", "if [ \"$NODE_ENV\" = 'production' ]; then npm run start; else npm run dev; fi"]
+CMD [ "npm", "run", "dev" ]
