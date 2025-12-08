@@ -3,9 +3,9 @@
   "version": "1.0.0",
   "description": "Exemplary Medium.com clone backend API implementation with Typescript + Express + PostgresQL + Drizzle",
   "scripts": {
-    "dev": "tsx -C development --watch --env-file .env src/server.ts",
-    "seed": "tsx -C development --env-file .env src/db/seed.ts",
-    "start": "node --env-file .env dist/src/server.js",
+    "dev": "tsx -C development --watch src/server.ts",
+    "seed": "tsx -C development src/db/seed.ts",
+    "start": "node dist/src/server.js",
     "build": "tsc -p tsconfig.build.json",
     "type-check": "tsc --noEmit",
     "lint": "eslint .",
@@ -17,8 +17,8 @@
     "test:ui": "vitest --ui",
     "coverage": "vitest run --coverage",
     "prepare": "husky",
-    "generate": "tsx node_modules/drizzle-kit/bin.cjs generate",
-    "migrate": "tsx node_modules/drizzle-kit/bin.cjs migrate"
+    "generate": "tsx -C development node_modules/drizzle-kit/bin.cjs generate",
+    "migrate": "tsx -C development node_modules/drizzle-kit/bin.cjs migrate"
   },
   "repository": {
     "type": "git",
