@@ -4,6 +4,7 @@
   "description": "Exemplary Medium.com clone backend API implementation with Typescript + Express + PostgresQL + Drizzle",
   "scripts": {
     "dev": "tsx -C development --watch --env-file .env src/server.ts",
+    "seed": "tsx -C development --env-file .env src/db/seed.ts",
     "start": "node --env-file .env dist/src/server.js",
     "build": "tsc -p tsconfig.build.json",
     "type-check": "tsc --noEmit",
