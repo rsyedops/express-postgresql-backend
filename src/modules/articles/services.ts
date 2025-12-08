@@ -19,6 +19,7 @@ import {
   insertArticleTags,
   insertComment,
   selectAllTags,
+  selectArticleFavoritesCountBySlug,
   selectFeedArticles,
   selectFeedArticlesCount,
   updateArticleBySlug,
@@ -138,7 +139,14 @@ export const favoriteArticleBySlug = async (slug: string, currentUserId: string)
     userId: currentUserId,
   });
 
-  return { ...article, author: profileWithImage(article.author), favorited: true };
+  const favoritesCount = (await selectArticleFavoritesCountBySlug(slug)).count;
+
+  return {
+    ...article,
+    author: profileWithImage(article.author),
+    favorited: true,
+    favoritesCount,
+  };
 };
 
 export const unfavoriteArticleBySlug = async (slug: string, currentUserId: string) => {
@@ -151,7 +159,9 @@ export const unfavoriteArticleBySlug = async (slug: string, currentUserId: strin
     userId: currentUserId,
   });
 
-  return { ...article, author: profileWithImage(article.author), favorited: false };
+  const favoritesCount = (await selectArticleFavoritesCountBySlug(slug)).count;
+
+  return { ...article, author: profileWithImage(article.author), favorited: false, favoritesCount };
 };
 
 export const getAllTags = async () => {

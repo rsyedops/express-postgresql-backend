@@ -165,6 +165,17 @@ export const deleteArticleFavorite = async (favorite: NewArticleFavorite) => {
     .where(and(eq(articlesFavorited.articleId, favorite.articleId), eq(articlesFavorited.userId, favorite.userId)));
 };
 
+export const selectArticleFavoritesCountBySlug = async (slug: string) => {
+  const [result] = await db
+    .select({
+      count: count(),
+    })
+    .from(articlesFavorited)
+    .innerJoin(articles, eq(articlesFavorited.articleId, articles.id))
+    .where(eq(articles.slug, slug));
+  return result;
+};
+
 export const selectAllTags = async () => {
   const results = await db
     .selectDistinct({
