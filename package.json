@@ -3,8 +3,8 @@
   "version": "1.0.0",
   "description": "Exemplary Medium.com clone backend API implementation with Typescript + Express + PostgresQL + Drizzle",
   "scripts": {
-    "dev": "tsx --watch --env-file .env src/server.ts",
-    "start": "node --env-file .env dist/server.js",
+    "dev": "tsx -C development --watch --env-file .env src/server.ts",
+    "start": "node --env-file .env dist/src/server.js",
     "build": "tsc -p tsconfig.build.json",
     "type-check": "tsc --noEmit",
     "lint": "eslint .",
@@ -32,7 +32,10 @@
   },
   "homepage": "https://github.com/AhmedFawzy31/Realworld-Express-TS-Postgres-Drizzle#readme",
   "imports": {
-    "#*": "./src/*"
+    "#*": {
+      "development": "./src/*",
+      "default": "./dist/src/*"
+    }
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": [
