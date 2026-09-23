@@ -128,10 +128,15 @@ jobs:
       - id: ecr
         uses: aws-actions/amazon-ecr-login@v2
 
+      # GitHub-hosted runners ship kustomize, and the upstream installer refuses
+      # to overwrite an existing binary, so it only runs when nothing is there.
       - name: Install kustomize
         run: |
-          curl -fsSL https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh \
-            | bash -s 5.5.0 /usr/local/bin
+          if ! command -v kustomize >/dev/null 2>&1; then
+            curl -fsSL https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh \
+              | bash -s 5.5.0 /usr/local/bin
+          fi
+          kustomize version
 
       - name: Configure kubectl
         run: aws eks update-kubeconfig --region "$AWS_REGION" --name "$EKS_CLUSTER"
