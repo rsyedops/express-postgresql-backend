@@ -197,8 +197,13 @@ jobs:
           echo "migration did not finish within 10 minutes"
           exit 1
 
+      # Only the objects this application owns. Everything shared was created by
+      # the prerequisites step or the first deployment, and the frontend's own
+      # objects belong to the frontend pipeline.
       - name: Apply manifests
-        run: kustomize build kubernetes/overlays/dev | kubectl -n "$NAMESPACE" apply -f -
+        run: |
+          kustomize build kubernetes/overlays/dev \
+            | kubectl -n "$NAMESPACE" apply --selector app.kubernetes.io/name=backend -f -
 
       - name: Wait for rollout
         run: kubectl -n "$NAMESPACE" rollout status deployment/backend --timeout=10m
