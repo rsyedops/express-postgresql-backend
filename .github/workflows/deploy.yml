@@ -173,7 +173,29 @@ jobs:
           kubectl -n "$NAMESPACE" delete job migrate --ignore-not-found
           kustomize build kubernetes/overlays/dev \
             | kubectl -n "$NAMESPACE" apply --selector app.kubernetes.io/name=migrate -f -
-          kubectl -n "$NAMESPACE" wait --for=condition=complete job/migrate --timeout=10m
+          # A failed Job never becomes Complete, so both conditions are polled
+          # instead of waiting the whole timeout for a success that cannot come.
+          for attempt in $(seq 1 60); do
+            conditions=$(kubectl -n "$NAMESPACE" get job migrate \
+              -o jsonpath='{range .status.conditions[?(@.status=="True")]}{.type}{" "}{end}')
+            case "$conditions" in
+              *Complete*)
+                echo "migration complete"
+                exit 0
+                ;;
+              *Failed*)
+                echo "migration failed"
+                kubectl -n "$NAMESPACE" describe job migrate
+                kubectl -n "$NAMESPACE" get pods -l app.kubernetes.io/name=migrate
+                kubectl -n "$NAMESPACE" logs -l app.kubernetes.io/name=migrate --prefix --tail=50 \
+                  | sed -E 's#postgres(ql)?://[^[:space:]]+#postgresql://<redacted>#g'
+                exit 1
+                ;;
+            esac
+            sleep 10
+          done
+          echo "migration did not finish within 10 minutes"
+          exit 1
 
       - name: Apply manifests
         run: kustomize build kubernetes/overlays/dev | kubectl -n "$NAMESPACE" apply -f -

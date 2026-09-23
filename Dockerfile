@@ -5,6 +5,18 @@ WORKDIR /app
 COPY package.json package-lock.json ./
 RUN --mount=type=cache,target=/root/.npm npm ci
 
+# RDS presents certificates issued by Amazon's own CA, which Node does not
+# trust by default. The bundle is fetched once here and shared by every stage
+# that talks to the database, so certificate verification stays on.
+RUN wget -qO /etc/ssl/certs/rds-global-bundle.pem \
+      https://truststore.pki.rds.amazonaws.com/global/global-bundle.pem \
+  && node -e "const { X509Certificate } = require('node:crypto'); \
+      const pems = require('node:fs').readFileSync(process.argv[1], 'utf8') \
+        .match(/-----BEGIN CERTIFICATE-----[^-]+-----END CERTIFICATE-----/g); \
+      if (!pems) throw new Error('no certificates in bundle'); \
+      pems.forEach((pem) => new X509Certificate(pem)); \
+      console.log(pems.length + ' CA certificates')" /etc/ssl/certs/rds-global-bundle.pem
+
 FROM deps AS build
 WORKDIR /app
 COPY tsconfig.json tsconfig.build.json ./
@@ -18,6 +30,7 @@ RUN npm run build
 FROM build AS migrator
 WORKDIR /app
 COPY drizzle.config.ts ./
+ENV NODE_EXTRA_CA_CERTS=/etc/ssl/certs/rds-global-bundle.pem
 USER node
 CMD ["npm", "run", "migrate"]
 
@@ -33,7 +46,9 @@ RUN apk upgrade --no-cache \
 WORKDIR /app
 
 ENV NODE_ENV=production
+ENV NODE_EXTRA_CA_CERTS=/etc/ssl/certs/rds-global-bundle.pem
 
+COPY --from=deps /etc/ssl/certs/rds-global-bundle.pem /etc/ssl/certs/rds-global-bundle.pem
 COPY --from=prune /app/node_modules ./node_modules
 COPY --from=build /app/dist ./dist
 COPY package.json ./
