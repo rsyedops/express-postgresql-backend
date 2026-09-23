@@ -18,45 +18,38 @@ Key components:
 - TypeScript — static typing and improved DX
 - Postgres — relational persistence
 - Drizzle — typesafe queries and migrations
-- Docker / Docker Compose — containerized runtime for the API and DB
+- Docker — containerized runtime for the API
 
 # Getting started
+
+The full local stack (API, frontend and Postgres) is defined in the
+infrastructure repository at `../infrastructure/docker/`.
 
 1. Copy the environment example file:
 
 ```
-cp .env.example .env
+cp ../infrastructure/docker/.env.example ../infrastructure/docker/.env
 ```
 
-2. Build and start services with Docker Compose:
+2. Build and start the services:
 
 ```
+cd ../infrastructure/docker
 docker compose up --build
 ```
 
-3. Open a shell inside the running API container:
+Database migrations are applied by the `migrate` service before the API starts.
+
+3. Seed sample data (optional):
 
 ```
-docker compose exec api sh
+docker compose run --rm migrate npm run seed
 ```
 
-4. Inside the container, run database migrations and seed data:
+4. The API should now be reachable (by default) at http://localhost:8080/api. You can import the Postman collection in the /postman folder to explore the API or run the automated Postman tests:
 
 ```
-npm run migrate
-npm run seed
-```
-
-5. Exit the container shell:
-
-```
-exit
-```
-
-6. The API should now be reachable (by default) at http://localhost:3000/api. You can import the Postman collection in the /postman folder to explore the API or run the automated Postman tests:
-
-```
-APIURL=http://localhost:3000/api ./postman/run-api-tests.sh
+APIURL=http://localhost:8080/api ./postman/run-api-tests.sh
 ```
 
 # Postman
